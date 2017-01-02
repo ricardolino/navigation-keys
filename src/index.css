@@ -1,0 +1,31 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.Navigation {
+	display: block;
+	clear: both;
+	overflow: hidden;
+}
+
+a {
+	display: block;
+	width: 40px;
+	height: 40px;
+	background: #ccc;
+	color: black;
+	float: left;
+	text-align: center;
+	line-height: 40px;
+	text-decoration: none;
+}
+
+a:focus,
+a:hover {
+	background: red;
+	color: #FFF;
+	border: none;
+	outline: none;
+}
