@@ -7,7 +7,7 @@ import store from './store';
 class Navigation extends Component {
     constructor(props) {
         super(props);
-        
+
         this.state = {
             activeItem: 0,
             isStageActive: false
@@ -59,7 +59,7 @@ class Navigation extends Component {
         let refs = this.objectToArray(this.refs),
             previous = refs.indexOf(refs[this.state.activeItem].previousSibling)
         ;
-    
+
         this.selectItem(previous);
     }
 
@@ -73,24 +73,36 @@ class Navigation extends Component {
         let refs = this.objectToArray(this.refs),
             next = refs.indexOf(refs[this.state.activeItem].nextSibling)
         ;
-    
+
         this.selectItem(next);
     }
 
     selectPreviousStage = () => {
+        let
+            index = this.returnActiveStageIndex()
+        ;
+
         this.deactiveStage();
 
-        ReactDOM.findDOMNode(this.props.stages[0].reference).focus();
+        ReactDOM.findDOMNode(this.props.stages[index - 1].reference).focus();
 
-        console.log('selectPreviousStage was called.', this.stage === this.props.stages[0].reference);
+        console.log('selectPreviousStage was called.');
+    }
+
+    returnActiveStageIndex () {
+        return this.props.stages.findIndex(item => item.reference === this.stage);
     }
 
     selectNextStage = () => {
+        let
+            index = this.returnActiveStageIndex()
+        ;
+
         this.deactiveStage();
 
-        ReactDOM.findDOMNode(this.props.stages[1].reference).focus();
+        ReactDOM.findDOMNode(this.props.stages[index + 1].reference).focus();
 
-        console.log('selectNextStage was called.', this.stage === this.props.stages[1].reference);
+        console.log('selectNextStage was called.');
     }
 
     onStageFocus = (e) => {
@@ -105,7 +117,7 @@ class Navigation extends Component {
             parent = e.target.parentNode,
             itemIndex = this.objectToArray(parent.childNodes).indexOf(e.target)
         ;
-        
+
         this.saveActiveItem(itemIndex);
     }
 
