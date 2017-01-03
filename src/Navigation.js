@@ -10,7 +10,8 @@ class Navigation extends Component {
 
         this.state = {
             activeItem: 0,
-            isStageActive: false
+            isStageActive: false,
+            stageIndex: 0
         }
     }
 
@@ -19,8 +20,11 @@ class Navigation extends Component {
             this.refs[index].focus();
             this.saveActiveItem(index);
         }
-        console.log('selectItem: ', index);
+
+        // console.log('selectItem: ', index);
     }
+
+
 
     saveActiveItem = (index) => {
         if (this.state.activeItem !== index) {
@@ -32,12 +36,11 @@ class Navigation extends Component {
 
     activeStage = () => {
         this.setState({
-            ...this.state,
             isStageActive: true
         });
 
         this.selectItem(this.state.activeItem);
-        console.log('this Stage is active');
+        // console.log('this Stage is active');
     }
 
     selectActiveItem = () => {
@@ -49,10 +52,9 @@ class Navigation extends Component {
 
     deactiveStage = () => {
         this.setState({
-            ...this.state,
             isStageActive: false
         })
-        console.log('this Stage is deactive');
+        // console.log('this Stage is deactive');
     }
 
     selectPreviousItem = () => {
@@ -77,32 +79,46 @@ class Navigation extends Component {
         this.selectItem(next);
     }
 
+    updateStageIndex (stages) {
+        this.setState({
+            stageIndex: stages.findIndex(item => {
+                return item.reference === this.stage;
+            })
+        });
+    }
+
     selectPreviousStage = () => {
         let
-            index = this.returnActiveStageIndex()
+            index = this.state.stageIndex,
+            stages = this.props.stages.filter((object) => {
+                return object.reference.props.children && object.reference.props.children.length > 0;
+            })
         ;
 
         this.deactiveStage();
 
-        ReactDOM.findDOMNode(this.props.stages[index - 1].reference).focus();
+        if (stages[index - 1]) {
+            ReactDOM.findDOMNode(stages[index - 1].reference).focus();
+        }
 
-        console.log('selectPreviousStage was called.');
-    }
-
-    returnActiveStageIndex () {
-        return this.props.stages.findIndex(item => item.reference === this.stage);
+        // console.log('selectPreviousStage was called.', ReactDOM.findDOMNode(this.stages[index].reference));
     }
 
     selectNextStage = () => {
         let
-            index = this.returnActiveStageIndex()
+            index = this.state.stageIndex,
+            stages = this.props.stages.filter((object) => {
+                return object.reference.props.children && object.reference.props.children.length > 0;
+            })
         ;
 
         this.deactiveStage();
 
-        ReactDOM.findDOMNode(this.props.stages[index + 1].reference).focus();
+        if (stages[index + 1]) {
+            ReactDOM.findDOMNode(stages[index + 1].reference).focus();
+        }
 
-        console.log('selectNextStage was called.');
+        // console.log('selectNextStage was called.', ReactDOM.findDOMNode(this.stages[index].reference));
     }
 
     onStageFocus = (e) => {
@@ -123,6 +139,14 @@ class Navigation extends Component {
 
     componentDidMount = () => {
         this.registerStage();
+    }
+
+    componentWillReceiveProps (nextProps) {
+        if (this.props !== nextProps) {
+            this.updateStageIndex(this.props.stages.filter((object) => {
+                return object.reference.props.children;
+            }));
+        }
     }
 
     registerStage = () => {
@@ -148,7 +172,7 @@ class Navigation extends Component {
         }
 
         return (
-            <HotKeys keyMap={map} handlers={handlers} className="Navigation" onFocus={this.onStageFocus} ref={(stage) => { this.stage = stage; }}>
+            <HotKeys ref={(stage) => { this.stage = stage; }} keyMap={map} handlers={handlers} className={"Navigation " + this.state.stageIndex} onFocus={this.onStageFocus}>
                 {
                     React.Children.map(this.props.children, (element, index) => {
                         return React.cloneElement(element, { ref: index, onMouseOver: this.onItemFocus, onFocus: this.onItemFocus });

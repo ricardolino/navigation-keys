@@ -22,8 +22,13 @@ a {
 	text-decoration: none;
 }
 
-a:focus,
 a:hover {
+	background: rgba(255, 0, 0, 0.3);
+	border: none;
+	outline: none;
+}
+
+a:focus {
 	background: red;
 	color: #FFF;
 	border: none;
