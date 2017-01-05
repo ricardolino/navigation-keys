@@ -5,7 +5,9 @@ import axios from 'axios';
 
 
 class App extends Component {
-    constructor(props) {
+    static CARDLIST_SIZE = 265;
+
+    constructor (props) {
         super(props);
 
         this.state = {
@@ -15,6 +17,7 @@ class App extends Component {
             left: 0
         }
     }
+
     componentDidMount () {
         axios.get('https://jsonplaceholder.typicode.com/posts/').then((data) => {
             this.setState({ data1: data.data });
@@ -38,16 +41,17 @@ class App extends Component {
 
         if (this.state.top < 0) {
             this.setState({
-                top: this.state.top + 265
+                top: this.state.top + App.CARDLIST_SIZE
             });
         }
     }
 
     beforeSelectNextStage (e) {
-        console.log('parent beforeSelectNextStage');
-        this.setState({
-            top: this.state.top - 265
-        });
+        if (((this.state.top * -1) / App.CARDLIST_SIZE) !== (this.zone.children.length - 1)) {
+            this.setState({
+                top: this.state.top - App.CARDLIST_SIZE
+            });
+        }
     }
 
     animateToLeft () {
@@ -70,8 +74,9 @@ class App extends Component {
 
         return (
             <div className="App">
-                <div className="zone">
+                <div className="zone" style={style} ref={(zone) => { this.zone = zone; }}>
                     <Navigation
+                        noButtonUp={true}
                         beforeSelectPreviousItem={this.beforeSelectPreviousItem.bind(this)}
                         beforeSelectNextItem={this.beforeSelectNextItem.bind(this)}
                         beforeSelectPreviousStage={this.beforeSelectPreviousStage.bind(this)}
@@ -99,6 +104,7 @@ class App extends Component {
                         <a href="#">0</a>
                     </Navigation>
                     <Navigation
+                        noButtonDown={true}
                         beforeSelectPreviousItem={this.beforeSelectPreviousItem.bind(this)}
                         beforeSelectNextItem={this.beforeSelectNextItem.bind(this)}
                         beforeSelectPreviousStage={this.beforeSelectPreviousStage.bind(this)}

@@ -105,7 +105,11 @@ class Navigation extends Component {
 
     selectStage (stages, index) {
         if (stages[index]) {
-            ReactDOM.findDOMNode(stages[index]).focus();
+            this.deactiveStage();
+
+            setTimeout(() => {
+                ReactDOM.findDOMNode(stages[index]).focus();
+            }, 300);
         }
     }
 
@@ -114,8 +118,6 @@ class Navigation extends Component {
             previousIndex = parseInt(this.state.stageIndex - 1, 10),
             stages = this.filterStagesWithChildren(this.props.stages)
         ;
-
-        this.deactiveStage();
 
         if (this.props.beforeSelectPreviousStage) {
             this.props.beforeSelectPreviousStage();
@@ -130,8 +132,6 @@ class Navigation extends Component {
             nextIndex = parseInt(this.state.stageIndex + 1, 10),
             stages = this.filterStagesWithChildren(this.props.stages)
         ;
-
-        this.deactiveStage();
 
         if (this.props.beforeSelectNextStage) {
             this.props.beforeSelectNextStage();
@@ -157,12 +157,6 @@ class Navigation extends Component {
     onStageFocus (e) {
         if (e.target.tagName !== 'A') {
             this.activeStage();
-        }
-    }
-
-    onStageBlur (e) {
-        if (e.target.tagName !== 'A') {
-            this.deactiveStage();
         }
     }
 
@@ -195,16 +189,16 @@ class Navigation extends Component {
 
         const buttons = (
             <div className="buttons">
-                <button className="button l" onClick={(e) => this.selectPreviousItem(e, 7)}>&larr;</button>
-                <button className="button r" onClick={(e) => this.selectNextItem(e, 7)}>&rarr;</button>
-                <button className="button u" onClick={this.selectPreviousStage.bind(this)}>&uarr;</button>
-                <button className="button d" onClick={this.selectNextStage.bind(this)}>&darr;</button>
+                <button className={"button l" + (this.props.noButtonLeft ? " hidden" : "") } onClick={(e) => this.selectPreviousItem(e, 7)}>&larr;</button>
+                <button className={"button r" + (this.props.noButtonRight ? " hidden" : "") } onClick={(e) => this.selectNextItem(e, 7)}>&rarr;</button>
+                <button className={"button u" + (this.props.noButtonUp ? " hidden" : "") } onClick={this.selectPreviousStage.bind(this)}>&uarr;</button>
+                <button className={"button d" + (this.props.noButtonDown ? " hidden" : "") } onClick={this.selectNextStage.bind(this)}>&darr;</button>
             </div>
         );
 
         return (
             <div className={"navigation-stage " + (this.state.isStageActive ? 'active' : '')} ref={(stage) => { this.navigationStage = stage; }}>
-                <HotKeys ref={(stage) => { this.stage = stage; }} keyMap={map} handlers={handlers} className="navigation" onFocus={this.onStageFocus.bind(this)} onBlur={this.onStageBlur.bind(this)}>
+                <HotKeys ref={(stage) => { this.stage = stage; }} keyMap={map} handlers={handlers} className="navigation" onFocus={this.onStageFocus.bind(this)}>
                     {
                         React.Children.map(this.props.children, (element, index) => {
                             return React.cloneElement(element, { ref: index, onMouseOver: this.onItemFocus.bind(this), onFocus: this.onItemFocus.bind(this) });

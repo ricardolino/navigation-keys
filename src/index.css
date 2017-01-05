@@ -43,6 +43,10 @@ body {
 	height: 265px
 }
 
+.navigation-stage .buttons .hidden {
+	display: none;
+}
+
 .navigation-stage .buttons .l {
 	left: 0px;
 	top: 0px;
