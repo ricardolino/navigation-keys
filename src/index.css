@@ -9,20 +9,15 @@ body {
   overflow: hidden;
 }
 
-.zone {
-	transition: ease 0.3s;
-}
-
-.navigation-stage {
+.navigation {
     position: relative;
-
 }
 
-.navigation-stage.active {
+.navigation.active {
 	z-index: 1;
 }
 
-.navigation-stage .navigation {
+.navigation-stage {
 	display: block;
     white-space: nowrap;
     text-align: left;
@@ -33,7 +28,7 @@ body {
     height: 265px;
 }
 
-.navigation-stage .buttons .button {
+.navigation .button {
 	background: rgba(0, 0, 0, 0.3);
 	color: #fff;
 	font-weight: bold;
@@ -43,21 +38,17 @@ body {
 	height: 265px
 }
 
-.navigation-stage .buttons .hidden {
-	display: none;
-}
-
-.navigation-stage .buttons .l {
+.navigation .button.l {
 	left: 0px;
 	top: 0px;
 }
 
-.navigation-stage .buttons .r {
+.navigation .button.r {
 	right: 0px;
 	top: 0px;
 }
 
-.navigation-stage .buttons .u {
+.navigation .button.u {
 	top: -70px;
 	left: 0px;
 	right: 0px;
@@ -66,7 +57,7 @@ body {
 	height: 70px;
 }
 
-.navigation-stage .buttons .d {
+.navigation .button.d {
 	bottom: -70px;
 	left: 0px;
 	right: 0px;

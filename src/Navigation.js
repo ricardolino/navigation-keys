@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'lodash';
 import { HotKeys } from 'react-hotkeys';
 import { connect } from 'react-redux';
 import store from './store';
@@ -13,16 +14,36 @@ class Navigation extends Component {
             isStageActive: false,
             stageIndex: 0
         }
+
+        this.selectPreviousStage = _.debounce(this.selectPreviousStage, 300);
+        this.selectNextStage = _.debounce(this.selectNextStage, 300);
+        this._selectStage = _.debounce(this._selectStage, 300);
     }
 
-    selectItem (index) {
+    __objectToArray (object) {
+        return Object.keys(object).map((key) => {
+            return object[key];
+        })
+    }
+
+    __filterStagesWithChildren (stages) {
+        return stages.filter((object) => {
+            return object.props.children && object.props.children.length > 0;
+        });
+    }
+
+    _focusOn (element) {
+        setTimeout(element.focus(), 100);
+    }
+
+    _selectItem (index) {
         if (this.refs[index]) {
-            this.refs[index].focus();
-            this.saveActiveItem(index);
+            this._focusOn(this.refs[index]);
+            this._saveActiveItem(index);
         }
     }
 
-    saveActiveItem (index) {
+    _saveActiveItem (index) {
         if (this.state.activeItem !== index) {
             this.setState({
                 activeItem: index
@@ -30,8 +51,44 @@ class Navigation extends Component {
         }
     }
 
-    selectPreviousItem (e, count = 0) {
-        let refs = this.objectToArray(this.refs),
+    _updateStageIndex (stages) {
+        this.setState({
+            stageIndex: stages.findIndex(item => {
+                return item === this.stage;
+            })
+        });
+    }
+
+    _activeStage () {
+        this.setState({
+            isStageActive: true
+        });
+
+        this._selectItem(this.state.activeItem);
+    }
+
+    _deactiveStage () {
+        this.setState({
+            isStageActive: false
+        })
+    }
+
+    _registerStage () {
+        store.dispatch({
+            type: 'REGISTER_STAGE',
+            reference: this.stage
+        });
+    }
+
+    _selectStage (stages, index) {
+        if (stages[index]) {
+            this._deactiveStage();
+            this._focusOn(ReactDOM.findDOMNode(stages[index]));
+        }
+    }
+
+    selectPreviousItem (count = 0) {
+        let refs = this.__objectToArray(this.refs),
             jumpTo = this.state.activeItem - count,
             activeItem = (jumpTo > count) ? jumpTo : this.state.activeItem,
             previous = refs.indexOf(refs[activeItem].previousSibling)
@@ -41,13 +98,11 @@ class Navigation extends Component {
             previous = 0;
         }
 
-        this.selectItem(previous);
-
-        e.preventDefault();
+        this._selectItem(previous);
     }
 
-    selectNextItem (e, count = 0) {
-        let refs = this.objectToArray(this.refs),
+    selectNextItem (count = 0) {
+        let refs = this.__objectToArray(this.refs),
             jumpTo = this.state.activeItem + count,
             activeItem = (jumpTo < (refs.length - 1)) ? jumpTo : this.state.activeItem,
             next = refs.indexOf(refs[activeItem].nextSibling)
@@ -57,116 +112,57 @@ class Navigation extends Component {
             next = refs.length - 1;
         }
 
-
-        this.selectItem(next);
-        e.preventDefault();
+        this._selectItem(next);
     }
 
-    objectToArray (object) {
-        return Object.keys(object).map((key) => {
-            return object[key];
-        })
-    }
-
-    activeStage () {
-        this.setState({
-            isStageActive: true
-        });
-
-        this.selectItem(this.state.activeItem);
-    }
-
-    deactiveStage () {
-        this.setState({
-            isStageActive: false
-        })
-    }
-
-    registerStage () {
-        store.dispatch({
-            type: 'REGISTER_STAGE',
-            reference: this.stage
-        });
-    }
-
-    updateStageIndex (stages) {
-        this.setState({
-            stageIndex: stages.findIndex(item => {
-                return item === this.stage;
-            })
-        });
-    }
-
-    filterStagesWithChildren (stages) {
-        return stages.filter((object) => {
-            return object.props.children && object.props.children.length > 0;
-        });
-    }
-
-    selectStage (stages, index) {
-        if (stages[index]) {
-            this.deactiveStage();
-
-            setTimeout(() => {
-                ReactDOM.findDOMNode(stages[index]).focus();
-            }, 300);
-        }
-    }
-
-    selectPreviousStage (e) {
+    selectPreviousStage () {
         let
             previousIndex = parseInt(this.state.stageIndex - 1, 10),
-            stages = this.filterStagesWithChildren(this.props.stages)
+            stages = this.__filterStagesWithChildren(this.props.stages)
         ;
 
         if (this.props.beforeSelectPreviousStage) {
             this.props.beforeSelectPreviousStage();
         }
 
-        this.selectStage(stages, previousIndex);
-        e.preventDefault();
+        this._selectStage(stages, previousIndex);
     }
 
-    selectNextStage (e) {
+    selectNextStage () {
         let
             nextIndex = parseInt(this.state.stageIndex + 1, 10),
-            stages = this.filterStagesWithChildren(this.props.stages)
+            stages = this.__filterStagesWithChildren(this.props.stages)
         ;
 
         if (this.props.beforeSelectNextStage) {
             this.props.beforeSelectNextStage();
         }
 
-        this.selectStage(stages, nextIndex);
-        e.preventDefault();
+        this._selectStage(stages, nextIndex);
     }
 
     onItemFocus (e) {
         let
             parent = e.target.parentNode,
-            itemIndex = this.objectToArray(parent.childNodes).indexOf(e.target)
+            itemIndex = this.__objectToArray(parent.childNodes).indexOf(e.target)
         ;
 
-        this.saveActiveItem(itemIndex);
-
-
-        console.log('itemFocus');
-        e.preventDefault();
+        this._saveActiveItem(itemIndex);
     }
 
     onStageFocus (e) {
         if (e.target.tagName !== 'A') {
-            this.activeStage();
+            this._activeStage();
         }
     }
 
     componentDidMount () {
-        this.registerStage();
+        this._registerStage();
     }
 
     componentWillReceiveProps (nextProps) {
         if (this.props !== nextProps) {
-            this.updateStageIndex(this.props.stages.filter((object) => {
+            this._updateStageIndex(this.props.stages.filter((object) => {
                 return object.props.children;
             }));
         }
@@ -187,26 +183,53 @@ class Navigation extends Component {
             'selectNextStage': this.selectNextStage.bind(this)
         }
 
-        const buttons = (
-            <div className="buttons">
-                <button className={"button l" + (this.props.noButtonLeft ? " hidden" : "") } onClick={(e) => this.selectPreviousItem(e, 7)}>&larr;</button>
-                <button className={"button r" + (this.props.noButtonRight ? " hidden" : "") } onClick={(e) => this.selectNextItem(e, 7)}>&rarr;</button>
-                <button className={"button u" + (this.props.noButtonUp ? " hidden" : "") } onClick={this.selectPreviousStage.bind(this)}>&uarr;</button>
-                <button className={"button d" + (this.props.noButtonDown ? " hidden" : "") } onClick={this.selectNextStage.bind(this)}>&darr;</button>
-            </div>
-        );
-
         return (
-            <div className={"navigation-stage " + (this.state.isStageActive ? 'active' : '')} ref={(stage) => { this.navigationStage = stage; }}>
-                <HotKeys ref={(stage) => { this.stage = stage; }} keyMap={map} handlers={handlers} className="navigation" onFocus={this.onStageFocus.bind(this)}>
+            <div
+                className={"navigation" + (this.state.isStageActive ? ' active' : '')}
+                onFocus={this.onStageFocus.bind(this)}>
+                <HotKeys
+                    ref={(stage) => { this.stage = stage; }}
+                    keyMap={map}
+                    handlers={handlers}
+                    className="navigation-stage">
                     {
                         React.Children.map(this.props.children, (element, index) => {
-                            return React.cloneElement(element, { ref: index, onMouseOver: this.onItemFocus.bind(this), onFocus: this.onItemFocus.bind(this) });
+                            return React.cloneElement(element, {
+                                ref: index,
+                                onMouseOver: this.onItemFocus.bind(this),
+                                onFocus: this.onItemFocus.bind(this)
+                            });
                         })
                     }
                 </HotKeys>
-
-                { this.state.isStageActive ? buttons : null }
+                { this.state.isStageActive && !this.props.noButtonLeft ? (
+                    <button
+                        className="button l"
+                        onClick={() => this.selectPreviousItem(7)}>
+                        &larr;
+                    </button>
+                ) : null }
+                { this.state.isStageActive && !this.props.noButtonRight ? (
+                    <button
+                        className="button r"
+                        onClick={() => this.selectNextItem(7)}>
+                        &rarr;
+                    </button>
+                ) : null }
+                { this.state.isStageActive && !this.props.noButtonUp ? (
+                    <button
+                        className="button u"
+                        onClick={this.selectPreviousStage.bind(this)}>
+                        &uarr;
+                    </button>
+                ) : null }
+                { this.state.isStageActive && !this.props.noButtonDown ? (
+                    <button
+                        className="button d"
+                        onClick={this.selectNextStage.bind(this)}>
+                        &darr;
+                    </button>
+                ) : null }
             </div>
         );
     }

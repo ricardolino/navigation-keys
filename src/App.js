@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import _ from 'lodash';
 import Navigation from './Navigation';
 import axios from 'axios';
 
@@ -28,17 +29,15 @@ class App extends Component {
         })
     }
 
-    beforeSelectPreviousItem (e) {
+    beforeSelectPreviousItem () {
         console.log('parent beforeSelectPreviousItem');
     }
 
-    beforeSelectNextItem (e) {
+    beforeSelectNextItem () {
         console.log('parent beforeSelectNextItem');
     }
 
-    beforeSelectPreviousStage (e) {
-        console.log('parent beforeSelectPreviousStage');
-
+    beforeSelectPreviousStage () {
         if (this.state.top < 0) {
             this.setState({
                 top: this.state.top + App.CARDLIST_SIZE
@@ -46,69 +45,56 @@ class App extends Component {
         }
     }
 
-    beforeSelectNextStage (e) {
-        if (((this.state.top * -1) / App.CARDLIST_SIZE) !== (this.zone.children.length - 1)) {
+    beforeSelectNextStage () {
+        if (((this.state.top * -1) / App.CARDLIST_SIZE) !== (this.stage.children.length - 1)) {
             this.setState({
                 top: this.state.top - App.CARDLIST_SIZE
             });
         }
     }
 
-    animateToLeft () {
-        ;
-    }
-
-    _transformCss (position) {
+    _moveStageVertically (position) {
         return {
-            transform: `translateY(${position}px)`,
-            WebkitTransform: `translateY(${position}px)`,
-            MozTransform: `translateY(${position}px)`
+            transform: `translate3d(0, ${position}px, 0)`,
+            WebkitTransform: `translate3d(0, ${position}px, 0)`,
+            MozTransform: `translate3d(0, ${position}px, 0)`
         }
     }
 
     render () {
 
         let style = {
-            ...this._transformCss(this.state.top)
+            ...this._moveStageVertically(this.state.top)
         };
+
+        let navigationProps = {
+            beforeSelectPreviousItem: this.beforeSelectPreviousItem.bind(this),
+            beforeSelectNextItem: this.beforeSelectNextItem.bind(this),
+            beforeSelectPreviousStage: this.beforeSelectPreviousStage.bind(this),
+            beforeSelectNextStage: this.beforeSelectNextStage.bind(this)
+        }
 
         return (
             <div className="App">
-                <div className="zone" style={style} ref={(zone) => { this.zone = zone; }}>
-                    <Navigation
-                        noButtonUp={true}
-                        beforeSelectPreviousItem={this.beforeSelectPreviousItem.bind(this)}
-                        beforeSelectNextItem={this.beforeSelectNextItem.bind(this)}
-                        beforeSelectPreviousStage={this.beforeSelectPreviousStage.bind(this)}
-                        beforeSelectNextStage={this.beforeSelectNextStage.bind(this)}>
+                <div className="stage"
+                    style={style}
+                    ref={(stage) => { this.stage = stage; }}>
+                    <Navigation {...navigationProps} noButtonUp={true}>
                             <a href="#1">0</a>
                             <a href="#2">1</a>
                             <a href="#3">2</a>
                     </Navigation>
-                    <Navigation
-                        beforeSelectPreviousItem={this.beforeSelectPreviousItem.bind(this)}
-                        beforeSelectNextItem={this.beforeSelectNextItem.bind(this)}
-                        beforeSelectPreviousStage={this.beforeSelectPreviousStage.bind(this)}
-                        beforeSelectNextStage={this.beforeSelectNextStage.bind(this)}>
+                    <Navigation {...navigationProps}>
                         {
                             this.state.data1.map((element, index) => {
                                 return <a href={"#" + index} key={index}>{ index }</a>
                             })
                         }
                     </Navigation>
-                    <Navigation
-                        beforeSelectPreviousItem={this.beforeSelectPreviousItem.bind(this)}
-                        beforeSelectNextItem={this.beforeSelectNextItem.bind(this)}
-                        beforeSelectPreviousStage={this.beforeSelectPreviousStage.bind(this)}
-                        beforeSelectNextStage={this.beforeSelectNextStage.bind(this)}>
+                    <Navigation {...navigationProps}>
                         <a href="#">0</a>
                     </Navigation>
-                    <Navigation
-                        noButtonDown={true}
-                        beforeSelectPreviousItem={this.beforeSelectPreviousItem.bind(this)}
-                        beforeSelectNextItem={this.beforeSelectNextItem.bind(this)}
-                        beforeSelectPreviousStage={this.beforeSelectPreviousStage.bind(this)}
-                        beforeSelectNextStage={this.beforeSelectNextStage.bind(this)}>
+                    <Navigation {...navigationProps} noButtonDown={true}>
                         {
                             this.state.data2.map((element, index) => {
                                 return <a href={"#" + index} key={index}>{ index }</a>
