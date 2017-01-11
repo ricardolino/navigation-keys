@@ -8,6 +8,7 @@ import axios from 'axios';
 class App extends Component {
     static CARDLIST_HEIGHT = 265;
     static CARDLIST_WIDTH = 205;
+    static CARDLIST_MAX_VISIBLE = 10;
 
     constructor (props) {
         super(props);
@@ -21,21 +22,13 @@ class App extends Component {
     }
 
     componentDidMount () {
-        axios.get('https://jsonplaceholder.typicode.com/posts/').then((data) => {
+        axios.get('https://jsonplaceholder.typicode.com/posts').then((data) => {
             this.setState({ data1: data.data });
         })
 
-        axios.get('https://jsonplaceholder.typicode.com/posts/').then((data) => {
+        axios.get('https://jsonplaceholder.typicode.com/posts').then((data) => {
             this.setState({ data2: data.data });
         })
-    }
-
-    beforeSelectPreviousItem () {
-        console.log('parent beforeSelectPreviousItem');
-    }
-
-    beforeSelectNextItem () {
-        console.log('parent beforeSelectNextItem');
     }
 
     beforeSelectPreviousStage () {
@@ -69,11 +62,10 @@ class App extends Component {
         };
 
         let navigationProps = {
-            beforeSelectPreviousItem: this.beforeSelectPreviousItem.bind(this),
-            beforeSelectNextItem: this.beforeSelectNextItem.bind(this),
             beforeSelectPreviousStage: this.beforeSelectPreviousStage.bind(this),
             beforeSelectNextStage: this.beforeSelectNextStage.bind(this),
-            itemWidth: App.CARDLIST_WIDTH
+            itemWidth: App.CARDLIST_WIDTH,
+            maxVisible: App.CARDLIST_MAX_VISIBLE
         }
 
         return (

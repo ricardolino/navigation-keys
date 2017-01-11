@@ -18,6 +18,8 @@ class Navigation extends Component {
 
         this.selectPreviousStage = _.debounce(this.selectPreviousStage, 300);
         this.selectNextStage = _.debounce(this.selectNextStage, 300);
+        this.selectPreviousItem = _.throttle(this.selectPreviousItem, 200);
+        this.selectNextItem = _.throttle(this.selectNextItem, 200);
         this._selectStage = _.debounce(this._selectStage, 300);
     }
 
@@ -134,7 +136,7 @@ class Navigation extends Component {
             next = refs.length - 1;
         }
 
-        if (((this.state.positionLeft * -1) / this.props.itemWidth) !== (refs.length - 1)) {
+        if (((this.state.positionLeft * -1) / this.props.itemWidth) <= (refs.length - this.props.maxVisible)) {
             this.setState({
                 positionLeft: this.state.positionLeft - this.props.itemWidth
             });
