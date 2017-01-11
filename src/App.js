@@ -55,6 +55,11 @@ class App extends Component {
         }
     }
 
+    onScroll (e) {
+        e.target.scrollLeft = 0;
+        e.target.scrollTop = 0;
+    }
+
     render () {
 
         let style = {
@@ -69,7 +74,7 @@ class App extends Component {
         }
 
         return (
-            <div className="App">
+            <div className="App" onScroll={this.onScroll.bind(this)}>
                 <div className="stage"
                     style={style}
                     ref={(stage) => { this.stage = stage; }}>
