@@ -12,7 +12,8 @@ class Navigation extends Component {
         this.state = {
             activeItem: 0,
             isStageActive: false,
-            stageIndex: 0
+            stageIndex: 0,
+            positionLeft: 0
         }
 
         this.selectPreviousStage = _.debounce(this.selectPreviousStage, 300);
@@ -30,6 +31,14 @@ class Navigation extends Component {
         return stages.filter((object) => {
             return object.props.children && object.props.children.length > 0;
         });
+    }
+
+    _moveStageHorizontally (left) {
+        return {
+            transform: `translate3d(${left}px, 0, 0)`,
+            WebkitTransform: `translate3d(${left}px, 0, 0)`,
+            MozTransform: `translate3d(${left}px, 0, 0)`
+        }
     }
 
     _focusOn (element) {
@@ -59,6 +68,20 @@ class Navigation extends Component {
         });
     }
 
+    _registerStage () {
+        store.dispatch({
+            type: 'REGISTER_STAGE',
+            reference: this.stage
+        });
+    }
+
+    _removeStage () {
+        store.dispatch({
+            type: 'REMOVE_STAGE',
+            reference: this.stage
+        });
+    }
+
     _activeStage () {
         this.setState({
             isStageActive: true
@@ -71,13 +94,6 @@ class Navigation extends Component {
         this.setState({
             isStageActive: false
         })
-    }
-
-    _registerStage () {
-        store.dispatch({
-            type: 'REGISTER_STAGE',
-            reference: this.stage
-        });
     }
 
     _selectStage (stages, index) {
@@ -98,6 +114,12 @@ class Navigation extends Component {
             previous = 0;
         }
 
+        if (this.state.positionLeft < 0) {
+            this.setState({
+                positionLeft: this.state.positionLeft + this.props.itemWidth
+            });
+        }
+
         this._selectItem(previous);
     }
 
@@ -110,6 +132,12 @@ class Navigation extends Component {
 
         if (next < 0) {
             next = refs.length - 1;
+        }
+
+        if (((this.state.positionLeft * -1) / this.props.itemWidth) !== (refs.length - 1)) {
+            this.setState({
+                positionLeft: this.state.positionLeft - this.props.itemWidth
+            });
         }
 
         this._selectItem(next);
@@ -160,6 +188,10 @@ class Navigation extends Component {
         this._registerStage();
     }
 
+    componentWillUnmount () {
+        this._removeStage();
+    }
+
     componentWillReceiveProps (nextProps) {
         if (this.props !== nextProps) {
             this._updateStageIndex(this.props.stages.filter((object) => {
@@ -183,6 +215,10 @@ class Navigation extends Component {
             'selectNextStage': this.selectNextStage.bind(this)
         }
 
+        let style = {
+            ...this._moveStageHorizontally(this.state.positionLeft)
+        };
+
         return (
             <div
                 className={"navigation" + (this.state.isStageActive ? ' active' : '')}
@@ -191,7 +227,8 @@ class Navigation extends Component {
                     ref={(stage) => { this.stage = stage; }}
                     keyMap={map}
                     handlers={handlers}
-                    className="navigation-stage">
+                    className="navigation-stage"
+                    style={style}>
                     {
                         React.Children.map(this.props.children, (element, index) => {
                             return React.cloneElement(element, {

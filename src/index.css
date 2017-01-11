@@ -21,11 +21,11 @@ body {
 	display: block;
     white-space: nowrap;
     text-align: left;
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
+    width: 9999999em;
+    overflow: hidden;
     padding-left: 50px;
     height: 265px;
+    transition: ease 0.3s;
 }
 
 .navigation .button {

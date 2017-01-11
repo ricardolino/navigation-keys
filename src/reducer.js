@@ -1,6 +1,6 @@
 import { combineReducers } from 'redux';
 
-import { REGISTER_STAGE } from './actions'
+import { REGISTER_STAGE, REMOVE_STAGE } from './actions';
 
 function navigationReducer (state = [], action) {
     switch (action.type) {
@@ -9,6 +9,12 @@ function navigationReducer (state = [], action) {
                 ...state,
                 action.reference
             ]
+        case REMOVE_STAGE:
+            return (
+                state.filter((element) => {
+                    return (element !== action.reference);
+                })
+            )
         default:
             return state
     }

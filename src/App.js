@@ -6,7 +6,8 @@ import axios from 'axios';
 
 
 class App extends Component {
-    static CARDLIST_SIZE = 265;
+    static CARDLIST_HEIGHT = 265;
+    static CARDLIST_WIDTH = 205;
 
     constructor (props) {
         super(props);
@@ -40,24 +41,24 @@ class App extends Component {
     beforeSelectPreviousStage () {
         if (this.state.top < 0) {
             this.setState({
-                top: this.state.top + App.CARDLIST_SIZE
+                top: this.state.top + App.CARDLIST_HEIGHT
             });
         }
     }
 
     beforeSelectNextStage () {
-        if (((this.state.top * -1) / App.CARDLIST_SIZE) !== (this.stage.children.length - 1)) {
+        if (((this.state.top * -1) / App.CARDLIST_HEIGHT) !== (this.stage.children.length - 1)) {
             this.setState({
-                top: this.state.top - App.CARDLIST_SIZE
+                top: this.state.top - App.CARDLIST_HEIGHT
             });
         }
     }
 
-    _moveStageVertically (position) {
+    _moveStageVertically (top) {
         return {
-            transform: `translate3d(0, ${position}px, 0)`,
-            WebkitTransform: `translate3d(0, ${position}px, 0)`,
-            MozTransform: `translate3d(0, ${position}px, 0)`
+            transform: `translate3d(0px, ${top}px, 0)`,
+            WebkitTransform: `translate3d(0px, ${top}px, 0)`,
+            MozTransform: `translate3d(0px, ${top}px, 0)`
         }
     }
 
@@ -71,7 +72,8 @@ class App extends Component {
             beforeSelectPreviousItem: this.beforeSelectPreviousItem.bind(this),
             beforeSelectNextItem: this.beforeSelectNextItem.bind(this),
             beforeSelectPreviousStage: this.beforeSelectPreviousStage.bind(this),
-            beforeSelectNextStage: this.beforeSelectNextStage.bind(this)
+            beforeSelectNextStage: this.beforeSelectNextStage.bind(this),
+            itemWidth: App.CARDLIST_WIDTH
         }
 
         return (

@@ -9,6 +9,10 @@
   padding-top: 70px;
 }
 
+.App .stage {
+  transition: ease 0.3s;
+}
+
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 80px;
