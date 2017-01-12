@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import './App.css';
 import _ from 'lodash';
 import Navigation from './Navigation';
-import axios from 'axios';
-
+import fetchData from './actions';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 class App extends Component {
     static CARDLIST_HEIGHT = 265;
@@ -14,7 +15,6 @@ class App extends Component {
         super(props);
 
         this.state = {
-            data1: [],
             data2: [],
             top: 0,
             left: 0
@@ -22,13 +22,7 @@ class App extends Component {
     }
 
     componentDidMount () {
-        axios.get('https://jsonplaceholder.typicode.com/posts').then((data) => {
-            this.setState({ data1: data.data });
-        })
-
-        axios.get('https://jsonplaceholder.typicode.com/posts').then((data) => {
-            this.setState({ data2: data.data });
-        })
+        this.props.fetchData();
     }
 
     beforeSelectPreviousStage () {
@@ -73,6 +67,10 @@ class App extends Component {
             maxVisible: App.CARDLIST_MAX_VISIBLE
         }
 
+        if (!this.props.data) {
+            return null;
+        }
+
         return (
             <div className="App" onScroll={this.onScroll.bind(this)}>
                 <div className="stage"
@@ -85,7 +83,7 @@ class App extends Component {
                     </Navigation>
                     <Navigation {...navigationProps}>
                         {
-                            this.state.data1.map((element, index) => {
+                            this.props.data.map((element, index) => {
                                 return <a href={"#" + index} key={index}>{ index }</a>
                             })
                         }
@@ -95,7 +93,7 @@ class App extends Component {
                     </Navigation>
                     <Navigation {...navigationProps} noButtonDown={true}>
                         {
-                            this.state.data2.map((element, index) => {
+                            this.props.data.map((element, index) => {
                                 return <a href={"#" + index} key={index}>{ index }</a>
                             })
                         }
@@ -106,4 +104,14 @@ class App extends Component {
     }
 }
 
-export default App;
+function mapDispatchToProps (dispatch) {
+    return bindActionCreators({ fetchData }, dispatch);
+}
+
+function mapStateToProps (state) {
+    return {
+        data: state.payload
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
+import { bindActionCreators } from 'redux';
 import { HotKeys } from 'react-hotkeys';
 import { connect } from 'react-redux';
-import store from './store';
+import { registerStage, removeStage } from './actions';
 
 class Navigation extends Component {
     constructor(props) {
@@ -71,17 +72,11 @@ class Navigation extends Component {
     }
 
     _registerStage () {
-        store.dispatch({
-            type: 'REGISTER_STAGE',
-            reference: this.stage
-        });
+        this.props.registerStage(this.stage);
     }
 
     _removeStage () {
-        store.dispatch({
-            type: 'REMOVE_STAGE',
-            reference: this.stage
-        });
+        this.props.removeStage(this.stage);
     }
 
     _activeStage () {
@@ -276,8 +271,12 @@ class Navigation extends Component {
 
 function mapStateToProps (state) {
     return {
-        stages: state.stages
+        stages: state.payload
     }
 }
 
-export default connect(mapStateToProps)(Navigation);
+function mapDispatchToProps (dispatch) {
+    return bindActionCreators({ registerStage, removeStage }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Navigation);
