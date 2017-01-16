@@ -25,7 +25,7 @@ function dataReducer (state = [], action) {
         case FETCH_DATA:
             return [
                 ...state,
-                action.payload
+                ...action.payload.data
             ]
         default:
             return state

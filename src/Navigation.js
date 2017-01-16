@@ -71,14 +71,6 @@ class Navigation extends Component {
         });
     }
 
-    _registerStage () {
-        this.props.registerStage(this.stage);
-    }
-
-    _removeStage () {
-        this.props.removeStage(this.stage);
-    }
-
     _activeStage () {
         this.setState({
             isStageActive: true
@@ -182,11 +174,11 @@ class Navigation extends Component {
     }
 
     componentDidMount () {
-        this._registerStage();
+        this.props.registerStage(this.stage);
     }
 
     componentWillUnmount () {
-        this._removeStage();
+        this.props.removeStage(this.stage);
     }
 
     componentWillReceiveProps (nextProps) {
@@ -271,7 +263,7 @@ class Navigation extends Component {
 
 function mapStateToProps (state) {
     return {
-        stages: state.payload
+        stages: state.stages
     }
 }
 

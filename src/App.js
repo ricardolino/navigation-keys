@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import _ from 'lodash';
 import Navigation from './Navigation';
-import fetchData from './actions';
+import { fetchData } from './actions';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
@@ -15,14 +15,9 @@ class App extends Component {
         super(props);
 
         this.state = {
-            data2: [],
             top: 0,
             left: 0
         }
-    }
-
-    componentDidMount () {
-        this.props.fetchData();
     }
 
     beforeSelectPreviousStage () {
@@ -53,7 +48,11 @@ class App extends Component {
         e.target.scrollLeft = 0;
         e.target.scrollTop = 0;
     }
-
+    
+    componentDidMount () {
+        this.props.fetchData();
+    }
+    
     render () {
 
         let style = {
@@ -65,10 +64,6 @@ class App extends Component {
             beforeSelectNextStage: this.beforeSelectNextStage.bind(this),
             itemWidth: App.CARDLIST_WIDTH,
             maxVisible: App.CARDLIST_MAX_VISIBLE
-        }
-
-        if (!this.props.data) {
-            return null;
         }
 
         return (
@@ -83,9 +78,11 @@ class App extends Component {
                     </Navigation>
                     <Navigation {...navigationProps}>
                         {
-                            this.props.data.map((element, index) => {
-                                return <a href={"#" + index} key={index}>{ index }</a>
-                            })
+                            this.props.data.length > 0 ? (
+                                this.props.data.map((element, index) => {
+                                    return <a href={"#" + index} key={index}>{ index }</a>
+                                })
+                            ) : null
                         }
                     </Navigation>
                     <Navigation {...navigationProps}>
@@ -93,9 +90,11 @@ class App extends Component {
                     </Navigation>
                     <Navigation {...navigationProps} noButtonDown={true}>
                         {
-                            this.props.data.map((element, index) => {
-                                return <a href={"#" + index} key={index}>{ index }</a>
-                            })
+                            this.props.data.length > 0 ? (
+                                this.props.data.map((element, index) => {
+                                    return <a href={"#" + index} key={index}>{ index }</a>
+                                })
+                            ) : null
                         }
                     </Navigation>
                 </div>
@@ -110,7 +109,7 @@ function mapDispatchToProps (dispatch) {
 
 function mapStateToProps (state) {
     return {
-        data: state.payload
+        data: state.data
     }
 }
 
